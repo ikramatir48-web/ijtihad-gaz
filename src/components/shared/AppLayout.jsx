@@ -1,6 +1,6 @@
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth.jsx'
-import { Flame, LayoutDashboard, ShoppingCart, Users, Package, FileText, LogOut, Plus, ClipboardList, Bell, FolderOpen, Truck, Settings, UserCheck } from 'lucide-react'
+import { Flame, LayoutDashboard, ShoppingCart, Users, Package, FileText, LogOut, Plus, ClipboardList, Bell, FolderOpen, Truck, Settings, UserCheck, Menu, X as XIcon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase.js'
 
@@ -59,9 +59,11 @@ export default function AppLayout() {
   const [showNotifs, setShowNotifs] = useState(false)
   const isAdmin = profile?.role === 'admin'
   const location = useLocation()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     setShowNotifs(false)
+    setSidebarOpen(false)
   }, [location.pathname])
 
   useEffect(() => {
@@ -110,7 +112,24 @@ export default function AppLayout() {
 
   return (
     <div className="app-layout">
-      <aside className="sidebar">
+      {/* Overlay mobile */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 99, display: 'none' }}
+          className="mobile-overlay"
+        />
+      )}
+
+      {/* Bouton hamburger mobile */}
+      <button
+        className="hamburger-btn"
+        onClick={() => setSidebarOpen(s => !s)}
+      >
+        {sidebarOpen ? <XIcon size={20} /> : <Menu size={20} />}
+      </button>
+
+      <aside className={`sidebar${sidebarOpen ? ' sidebar-open' : ''}`}>
         <div className="sidebar-logo">
           <div className="flex items-center gap-2">
             <div style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent)', borderRadius: 8, padding: 6, display: 'flex' }}>

@@ -1,0 +1,168 @@
+
+/* ═══════════════════════════════════════
+   RESPONSIVE MOBILE & TABLETTE
+═══════════════════════════════════════ */
+
+.hamburger-btn {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 200;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--text);
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  /* Hamburger visible */
+  .hamburger-btn {
+    display: flex;
+  }
+
+  /* Sidebar cachée par défaut */
+  .sidebar {
+    position: fixed !important;
+    left: -280px !important;
+    top: 0 !important;
+    height: 100vh !important;
+    z-index: 150 !important;
+    transition: left 0.25s ease !important;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+  }
+
+  /* Sidebar ouverte */
+  .sidebar.sidebar-open {
+    left: 0 !important;
+  }
+
+  /* Overlay visible */
+  .mobile-overlay {
+    display: block !important;
+  }
+
+  /* Contenu principal prend toute la largeur */
+  .app-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    padding: 60px 12px 24px !important;
+    width: 100% !important;
+  }
+
+  /* Tableaux scrollables horizontalement */
+  .table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 500px;
+  }
+
+  /* Grilles en colonne */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Panels détail en dessous */
+  [style*="grid-template-columns: 1fr 400px"],
+  [style*="grid-template-columns: 1fr 380px"],
+  [style*="grid-template-columns: 1fr 340px"],
+  [style*="grid-template-columns: 260px 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Modals plein écran */
+  .modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+  }
+
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  /* Cards padding réduit */
+  .card {
+    padding: 14px !important;
+  }
+
+  /* Page header */
+  .page-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  /* Boutons flex */
+  .flex.gap-2,
+  .flex.gap-3 {
+    flex-wrap: wrap;
+  }
+
+  /* Produits grid */
+  [style*="grid-template-columns: repeat(auto-fill, minmax(200px"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Nouvelle commande - panier en bas */
+  [style*="grid-template-columns: 1fr 340px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Auth page */
+  .auth-card {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    min-height: 100vh !important;
+    padding: 32px 20px !important;
+  }
+
+  /* Titres */
+  h2 {
+    font-size: 22px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  [style*="grid-template-columns: repeat(auto-fill, minmax(200px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .main-content {
+    padding: 56px 8px 20px !important;
+  }
+}
+
+/* Tablette */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 200px !important;
+  }
+
+  .main-content {
+    padding: 24px 16px !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
