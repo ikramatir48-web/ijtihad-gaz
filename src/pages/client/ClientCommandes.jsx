@@ -120,7 +120,7 @@ export default function ClientCommandes() {
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: selected ? '1fr 380px' : '1fr', gap: 20 }}>
+      <div className={selected ? 'commandes-grid-split' : 'commandes-grid-full'}>
 
         {/* LISTE — cartes au lieu de tableau */}
         <div>

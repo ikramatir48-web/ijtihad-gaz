@@ -183,3 +183,44 @@
     height: 11px !important;
   }
 }
+
+/* ═══════════════════════════════════════
+   GRILLES SPÉCIFIQUES MOBILE
+═══════════════════════════════════════ */
+
+/* Commandes client — liste + détail */
+.commandes-grid-split {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+}
+.commandes-grid-full {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+/* Nouvelle commande — produits + panier */
+.commande-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  /* Détail commande en dessous sur mobile */
+  .commandes-grid-split {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Panier en dessous sur mobile */
+  .commande-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Panier non sticky sur mobile */
+  .commande-grid > div:last-child {
+    position: static !important;
+  }
+}
