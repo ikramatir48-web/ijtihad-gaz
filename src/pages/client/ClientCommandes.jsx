@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase.js'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { X, Eye, Printer, Plus } from 'lucide-react'
+import { X, Printer, Plus } from 'lucide-react'
 import { PrintBL, PrintFacture, PrintBC } from '../../components/shared/PrintDocs.jsx'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
@@ -27,9 +27,7 @@ export default function ClientCommandes() {
   const [selected, setSelected]   = useState(null)
   const [printDoc, setPrintDoc]   = useState(null)
 
-  useEffect(() => {
-    if (profile?.id) load()
-  }, [profile])
+  useEffect(() => { if (profile?.id) load() }, [profile])
 
   async function load() {
     const { data } = await supabase
@@ -51,7 +49,6 @@ export default function ClientCommandes() {
       const { data: f } = await supabase.from('factures').select('*').eq('bl_id', blRes.data.id).maybeSingle()
       facture = f
     }
-    // Récupérer le livreur si assigné
     let livreur = null
     const livreurId = cmdRes.data?.livreur_id
     if (livreurId) {
@@ -63,10 +60,7 @@ export default function ClientCommandes() {
 
   async function annulerCommande(cmd) {
     if (!confirm(`Annuler la commande ${cmd.numero_commande} ?`)) return
-    if (cmd.statut !== 'en_attente') {
-      toast.error('Vous ne pouvez annuler que les commandes en attente de confirmation.')
-      return
-    }
+    if (cmd.statut !== 'en_attente') { toast.error('Vous ne pouvez annuler que les commandes en attente.'); return }
     const { error } = await supabase.from('commandes').update({ statut: 'annulee' }).eq('id', cmd.id)
     if (error) { toast.error(error.message); return }
     toast.success('Commande annulée')
@@ -75,14 +69,11 @@ export default function ClientCommandes() {
   }
 
   async function openPrintBL(bl, cmd, lignes) {
-    // Toujours recharger le livreur depuis la DB
     let livreur = null
-    const { data: cmdData } = await supabase
-      .from('commandes').select('livreur_id').eq('id', cmd.id).maybeSingle()
+    const { data: cmdData } = await supabase.from('commandes').select('livreur_id').eq('id', cmd.id).maybeSingle()
     const livreurId = cmdData?.livreur_id || selected?.livreur?.id
     if (livreurId) {
-      const { data: liv } = await supabase
-        .from('livreurs').select('*').eq('id', livreurId).maybeSingle()
+      const { data: liv } = await supabase.from('livreurs').select('*').eq('id', livreurId).maybeSingle()
       livreur = liv
     }
     setPrintDoc({ type: 'bl', bl, commande: cmd, lignes, client: profile, livreur })
@@ -91,8 +82,7 @@ export default function ClientCommandes() {
   async function openPrintBC(cmd, lignes) {
     let finalLignes = lignes || []
     if (!finalLignes.length) {
-      const { data } = await supabase
-        .from('lignes_commande').select('*, produits(nom)').eq('commande_id', cmd.id)
+      const { data } = await supabase.from('lignes_commande').select('*, produits(nom)').eq('commande_id', cmd.id)
       finalLignes = data || []
     }
     setPrintDoc({ type: 'bc', commande: cmd, lignes: finalLignes, client: profile })
@@ -131,66 +121,55 @@ export default function ClientCommandes() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: selected ? '1fr 380px' : '1fr', gap: 20 }}>
-        <div className="card" style={{ padding: 0 }}>
+
+        {/* LISTE — cartes au lieu de tableau */}
+        <div>
           {loading ? (
             <div style={{ padding: 40, textAlign: 'center' }}><div className="spinner" style={{ margin: '0 auto' }} /></div>
           ) : commandes.length === 0 ? (
-            <div className="empty-state"><h3>Aucune commande</h3></div>
+            <div className="card"><div className="empty-state"><h3>Aucune commande</h3></div></div>
           ) : (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>N° Commande</th><th>Date</th><th>Règlement</th><th>Statut</th><th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {commandes.map(cmd => (
-                    <tr key={cmd.id}>
-                      <td>
-                        <span className="font-display" style={{ fontWeight: 700, color: 'var(--accent)', cursor: 'pointer' }}
-                          onClick={() => openDetail(cmd)}>
-                          {cmd.numero_commande}
-                        </span>
-                      </td>
-                      <td className="text-muted">{format(new Date(cmd.created_at), 'dd MMM yyyy', { locale: fr })}</td>
-                      <td>
-                        <span className="badge badge-gray">
-                          {cmd.mode_reglement === 'cheque' ? '📋 Chèque' : '💵 Espèces'}
-                        </span>
-                      </td>
-                      <td><StatutBadge statut={cmd.statut} /></td>
-                      <td>
-                        <div className="flex gap-2">
-                          <button className="btn btn-ghost btn-sm" onClick={() => openDetail(cmd)}>
-                            <Eye size={13} /> Voir
-                          </button>
-                          {cmd.statut === 'en_attente' && (
-                            <>
-                              <button className="btn btn-ghost btn-sm" onClick={() => navigate('/client/nouvelle-commande', { state: { editCmd: cmd } })}>
-                                Modifier
-                              </button>
-                              <button className="btn btn-danger btn-sm" onClick={() => annulerCommande(cmd)}>
-                                <X size={13} /> Annuler
-                              </button>
-                            </>
-                          )}
-                          {cmd.statut === 'validee' && (
-                            <button className="btn btn-ghost btn-sm" onClick={() => alert('Cette commande est confirmée. Pour toute modification, contactez-nous directement.')}>
-                              Modifier
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {commandes.map(cmd => (
+                <div key={cmd.id} onClick={() => openDetail(cmd)} style={{
+                  padding: '16px',
+                  background: 'var(--bg-card)',
+                  borderRadius: 12,
+                  border: `1px solid ${selected?.cmd?.id === cmd.id ? 'var(--accent)' : 'var(--border)'}`,
+                  cursor: 'pointer',
+                  transition: 'border-color 0.15s',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <span className="font-display" style={{ fontWeight: 700, color: 'var(--accent)', fontSize: 15 }}>
+                      {cmd.numero_commande}
+                    </span>
+                    <StatutBadge statut={cmd.statut} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span className="text-muted" style={{ fontSize: 12 }}>
+                      {format(new Date(cmd.created_at), 'dd MMM yyyy', { locale: fr })}
+                    </span>
+                    <span className="badge badge-gray" style={{ fontSize: 11 }}>
+                      {cmd.mode_reglement === 'cheque' ? '📋 Chèque' : '💵 Espèces'}
+                    </span>
+                  </div>
+                  {cmd.statut === 'en_attente' && (
+                    <div className="flex gap-2" style={{ marginTop: 10 }} onClick={e => e.stopPropagation()}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => navigate('/client/nouvelle-commande', { state: { editCmd: cmd } })}>
+                        Modifier
+                      </button>
+                      <button className="btn btn-danger btn-sm" onClick={() => annulerCommande(cmd)}>
+                        <X size={13} /> Annuler
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Panneau détail */}
+        {/* PANNEAU DÉTAIL */}
         {selected && (
           <div className="card" style={{ position: 'sticky', top: 20, alignSelf: 'start' }}>
             <div className="flex items-center justify-between mb-4">
@@ -198,14 +177,12 @@ export default function ClientCommandes() {
               <button className="btn btn-ghost btn-sm btn-icon" onClick={() => setSelected(null)}><X size={15} /></button>
             </div>
 
-            {/* Statut annulé */}
             {selected.cmd.statut === 'annulee' && (
               <div style={{ padding: '8px 12px', background: 'var(--danger-dim)', borderRadius: 8, marginBottom: 12, fontSize: 13, color: 'var(--danger)', fontWeight: 600 }}>
                 ✕ Commande annulée
               </div>
             )}
 
-            {/* Timeline */}
             {selected.cmd.statut !== 'annulee' && (
               <div className="timeline mb-4">
                 {steps.map(step => {
@@ -225,7 +202,6 @@ export default function ClientCommandes() {
               </div>
             )}
 
-            {/* Produits */}
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 8 }}>Produits</div>
             {selected.lignes.map((l, i) => (
               <div key={i} className="flex items-center justify-between" style={{ padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
@@ -241,16 +217,12 @@ export default function ClientCommandes() {
               <span className="text-accent">{selected.lignes.reduce((s, l) => s + l.quantite * l.prix_unitaire, 0).toFixed(2)} DH</span>
             </div>
 
-            {/* Mode règlement */}
             <div style={{ padding: '6px 10px', background: 'var(--bg-elevated)', borderRadius: 8, fontSize: 13, marginBottom: 12 }}>
               Règlement : <strong>{selected.cmd.mode_reglement === 'cheque' ? 'Chèque' : 'Espèces'}</strong>
             </div>
 
-            {/* Documents */}
             <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 8 }}>Documents</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-
-              {/* Bon de commande */}
               <div className="flex items-center justify-between" style={{ padding: '8px 12px', background: 'var(--bg-elevated)', borderRadius: 8 }}>
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 13 }}>📋 Bon de commande</div>
@@ -261,7 +233,6 @@ export default function ClientCommandes() {
                 </button>
               </div>
 
-              {/* BL */}
               {selected.bl ? (
                 <div className="flex items-center justify-between" style={{ padding: '8px 12px', background: 'var(--info-dim)', borderRadius: 8 }}>
                   <div>
@@ -278,8 +249,7 @@ export default function ClientCommandes() {
                 </div>
               )}
 
-              {/* Facture */}
-              {selected.facture ? (
+              {selected.facture && selected.cmd.statut_paiement === 'paye' ? (
                 <div className="flex items-center justify-between" style={{ padding: '8px 12px', background: 'var(--success-dim)', borderRadius: 8 }}>
                   <div>
                     <div style={{ fontWeight: 600, color: 'var(--success)', fontSize: 13 }}>🧾 {selected.facture.numero_facture}</div>
@@ -295,7 +265,6 @@ export default function ClientCommandes() {
                 </div>
               )}
 
-              {/* Annuler si en attente */}
               {selected.cmd.statut === 'en_attente' && (
                 <button className="btn btn-danger btn-sm" style={{ justifyContent: 'center' }}
                   onClick={() => annulerCommande(selected.cmd)}>
