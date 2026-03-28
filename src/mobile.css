@@ -134,3 +134,52 @@
     padding: 52px 8px 20px !important;
   }
 }
+
+/* ═══════════════════════════════════════
+   TABLEAUX MOBILE — colonnes essentielles
+═══════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+  /* Page commandes admin — cacher livreur et statut, garder N°, Client, Date, Actions */
+  .table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Permettre le scroll horizontal sur les tableaux */
+  .table-wrap table {
+    min-width: 600px !important;
+  }
+
+  /* Rendre les cellules plus compactes */
+  thead th, tbody td {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  /* Select livreur plus petit */
+  .table-wrap select.form-select {
+    font-size: 11px !important;
+    padding: 4px 6px !important;
+    min-width: 100px !important;
+  }
+
+  /* Badges plus petits */
+  .table-wrap .badge {
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+  }
+
+  /* Boutons dans tableau plus petits */
+  .table-wrap .btn {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    gap: 4px !important;
+  }
+
+  .table-wrap .btn svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+}
