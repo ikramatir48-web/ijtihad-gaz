@@ -113,13 +113,10 @@ export default function AppLayout() {
   return (
     <div className="app-layout">
       {/* Overlay mobile */}
-      {sidebarOpen && (
-        <div
-          onClick={() => setSidebarOpen(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 99, display: 'none' }}
-          className="mobile-overlay"
-        />
-      )}
+      <div
+        onClick={() => setSidebarOpen(false)}
+        className={`mobile-overlay${sidebarOpen ? ' active' : ''}`}
+      />
 
       {/* Bouton hamburger mobile */}
       <button
